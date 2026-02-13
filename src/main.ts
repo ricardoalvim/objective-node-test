@@ -10,7 +10,7 @@ import * as swaggerDocument from './shared/infra/presentation/swagger.json'
 const app = express()
 app.use(express.json())
 
-const port = process.env.PORT || 3000
+const port = process.env.PORT || 2342
 
 const client = new MongoClient(process.env.MONGO_URL || 'mongodb://localhost:27017')
 
