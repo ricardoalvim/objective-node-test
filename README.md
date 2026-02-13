@@ -63,7 +63,5 @@ Para monitoração em tempo real: Acesse o endpoint /api/monitoring/stats para v
 
 # ADVERTÊNCIAS (Diferenciais Técnicos)
 Uso de Native Crypto: Gerenciamento de UUIDs sem dependências externas.
-
 Baixo Acoplamento: Módulos independentes prontos para evolução em microserviços.
-
 Segurança de Tipos: Tipagem forte em todas as camadas, evitando efeitos colaterais em tempo de execução.
