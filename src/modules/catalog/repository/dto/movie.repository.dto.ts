@@ -18,9 +18,9 @@
  * type: boolean
  */
 export interface MovieRepositoryDTO {
-    id: string
-    name: string
-    synopsis: string
-    rating: string
-    available: boolean
+  id: string
+  name: string
+  synopsis: string
+  rating: string
+  available: boolean
 }

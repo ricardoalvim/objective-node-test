@@ -1,64 +1,54 @@
-import { Request } from 'express'
-import { BaseController } from '@shared/infra/presentation/base.controller'
-import { HttpResponse } from '@shared/infra/presentation/protocols/http'
+import { Body, Controller, Delete, Get, Path, Post, Put, Route, SuccessResponse, Tags } from 'tsoa'
 import { CatalogService } from '../domain/service/catalog.service'
+import { MovieRepositoryDTO } from '../repository/dto/movie.repository.dto'
+import { CreateMovieRequest, UpdateMovieRequest } from './dto/movie.controller.dto'
 
-export class CatalogController extends BaseController {
-    constructor(private readonly catalogService: CatalogService) {
-        super()
-    }
+@Route('api')
+@Tags('Catalog')
+export class CatalogController extends Controller {
+  constructor(private readonly catalogService: CatalogService) {
+    super()
+  }
 
-    /**
-     * @openapi
-     * /api/all:
-     * get:
-     * summary: Lista todos os filmes disponíveis
-     * tags: [Catalog]
-     * responses:
-     * 200:
-     * description: Sucesso
-     * content:
-     * application/json:
-     * schema:
-     * type: array
-     * items:
-     * $ref: '#/components/schemas/Movie'
-     */
-    public async getAll(_req: Request): Promise<HttpResponse> {
-        const movies = await this.catalogService.listAvailable()
-        return { statusCode: 200, data: movies }
-    }
+  /**
+   * Lista todos os filmes disponíveis para locação.
+   * @summary Listar filmes disponíveis
+   */
+  @Get('/all')
+  public async getAll(): Promise<MovieRepositoryDTO[]> {
+    return this.catalogService.listAvailable()
+  }
 
-    /**
-     * @openapi
-     * /api/movies/{id}:
-     * get:
-     * summary: Detalhes de um filme específico
-     * tags: [Catalog]
-     * parameters:
-     * - in: path
-     * name: id
-     * required: true
-     * schema:
-     * type: string
-     * responses:
-     * 200:
-     * description: Dados do filme
-     * 404:
-     * description: Filme não encontrado
-     */
-    public async getById(req: Request): Promise<HttpResponse> {
-        const { id } = req.params
-        const movie = await this.catalogService.getMovieDetails(id)
+  /**
+   * Adiciona um novo filme ao catálogo (Massa de dados).
+   * @summary Adicionar filme
+   */
+  @SuccessResponse('201', 'Created') // Documenta o 201
+  @Post('/movies')
+  public async create(@Body() requestBody: CreateMovieRequest): Promise<MovieRepositoryDTO> {
+    const movie = await this.catalogService.create(requestBody)
+    this.setStatus(201)
+    return movie
+  }
 
-        if (!movie) {
-            return { statusCode: 404, error: 'Movie not found' }
-        }
+  /**
+   * Atualiza os dados de um filme existente.
+   * @param id O UUID do filme
+   */
+  @Put('/movies/{id}')
+  public async update(@Path() id: string, @Body() requestBody: UpdateMovieRequest): Promise<void> {
+    await this.catalogService.update(id, requestBody)
+    this.setStatus(200)
+  }
 
-        return { statusCode: 200, data: movie }
-    }
-
-    protected async executeImpl(req: Request): Promise<HttpResponse> {
-        return this.getAll(req)
-    }
+  /**
+   * Remove um filme do catálogo.
+   * @param id O UUID do filme
+   */
+  @SuccessResponse('204', 'No Content')
+  @Delete('/movies/{id}')
+  public async delete(@Path() id: string): Promise<void> {
+    await this.catalogService.delete(id)
+    this.setStatus(204)
+  }
 }

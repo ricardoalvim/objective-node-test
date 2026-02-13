@@ -1,28 +1,40 @@
 import { Router, Request, Response } from 'express'
 import { Db } from 'mongodb'
+import { makeCatalogController } from './catalog.factory'
 import { seedCatalog } from './catalog.seed'
-import { MovieRepository } from './repository/catalog.repository'
-import { CatalogService } from './domain/service/catalog.service'
-import { CatalogController } from './presentation/catalog.controller'
 
 export class CatalogModule {
-    static setup(db: Db): Router {
-        const router = Router()
+  static setup(db: Db): Router {
+    const router = Router()
 
-        seedCatalog(db).catch(err => console.error('Seed falhou', err))
+    seedCatalog(db).catch(console.error)
 
-        const repository = new MovieRepository(db)
-        const service = new CatalogService(repository)
-        const controller = new CatalogController(service)
+    const controller = makeCatalogController(db)
 
-        router.get('/all', (req: Request, res: Response) => {
-            controller.execute(req, res)
-        })
+    // GET /all
+    router.get('/all', async (_req: Request, res: Response) => {
+      const result = await controller.getAll()
+      res.json(result)
+    })
 
-        router.get('/movies/:id', (req: Request, res: Response) => {
-            controller.execute(req, res)
-        })
+    // POST /movies
+    router.post('/movies', async (req: Request, res: Response) => {
+      const result = await controller.create(req.body)
+      res.status(201).json(result)
+    })
 
-        return router
-    }
+    // PUT /movies/:id
+    router.put('/movies/:id', async (req: Request, res: Response) => {
+      await controller.update(req.params.id, req.body)
+      res.status(200).send()
+    })
+
+    // DELETE /movies/:id
+    router.delete('/movies/:id', async (req: Request, res: Response) => {
+      await controller.delete(req.params.id)
+      res.status(204).send()
+    })
+
+    return router
+  }
 }

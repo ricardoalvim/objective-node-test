@@ -1,41 +1,31 @@
+import 'module-alias/register'
 import 'dotenv/config'
 import express from 'express'
-import { MongoClient } from 'mongodb'
-import { Logger } from './shared/logger'
-import { CatalogModule } from './modules/catalog/catalog.module'
 import swaggerUi from 'swagger-ui-express'
-import { swaggerSpec } from '@shared/infra/presentation/swagger.config'
+import { MongoClient } from 'mongodb'
+
+import { CatalogModule } from './modules/catalog/catalog.module'
+import * as swaggerDocument from './shared/infra/presentation/swagger.json'
+
+const app = express()
+app.use(express.json())
+
+const port = process.env.PORT || 3000
+
+const client = new MongoClient(process.env.MONGO_URL || 'mongodb://localhost:27017')
 
 async function bootstrap() {
-    const app = express()
+  await client.connect()
+  const db = client.db('objective_rental')
 
-    app.use(express.json())
-    app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
+  app.use('/api', CatalogModule.setup(db))
 
-    const mongoUrl = process.env.MONGO_URL || 'mongodb://localhost:27017'
-    const mongoClient = new MongoClient(mongoUrl)
+  app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
 
-    try {
-        Logger.info('Database >: connecting to MongoDB...')
-        await mongoClient.connect()
-        Logger.info('Database >: connection established successfully')
-
-        const db = mongoClient.db()
-        Logger.info('Database >: Seed process finished')
-
-        app.use('/api', CatalogModule.setup(db))
-
-        app.use('/docs', express.static('docs'))
-
-        const PORT = process.env.PORT || 3000
-        app.listen(PORT, () => {
-            Logger.info('Application >: Server is alive!')
-            Logger.info(`Application >: Endpoint: http://localhost:${PORT}`)
-        })
-    } catch (error) {
-        Logger.error('Application >: Failed to bootstrap the application', error)
-        process.exit(1)
-    }
+  app.listen(port, () => {
+    console.log(`Server running on port ${port}`)
+    console.log(`Docs available at http://localhost:${port}/docs`)
+  })
 }
 
-bootstrap()
+bootstrap().catch(console.error)

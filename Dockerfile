@@ -7,6 +7,9 @@ COPY package*.json ./
 RUN npm install
 
 COPY . .
+
+RUN npx tsoa spec 
+
 RUN npm run build
 
 # Stage 2: Runner
@@ -15,13 +18,16 @@ FROM node:20-alpine
 WORKDIR /app
 ENV NODE_ENV=production
 
-# Instala apenas dependências de prod e copia o build do stage anterior
+# Instala dependências de prod
 COPY package*.json ./
 RUN npm install --only=production
 
+# Copia o dist (onde está o código compilado)
 COPY --from=builder /app/dist ./dist
 
-# Segurança: Não rodar como root
+COPY --from=builder /app/src ./src
+
+# Segurança
 USER node
 
 EXPOSE 3000

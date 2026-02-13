@@ -1,0 +1,15 @@
+{
+    "entryFile": "src/main.ts",
+    "noImplicitAdditionalProperties": "throw-on-extras",
+    "controllerPathGlobs": [
+        "src/modules/**/*.controller.ts"
+    ],
+    "spec": {
+        "outputDirectory": "src/shared/infra/presentation",
+        "specVersion": 3
+    },
+    "routes": {
+        "routesDir": "src/shared/infra/http",
+        "middleware": "express"
+    }
+}

@@ -25,7 +25,9 @@
         "emitDecoratorMetadata": true,
         "sourceMap": true,
         "removeComments": true,
-        "noImplicitAny": true
+        "noImplicitAny": true,
+        "resolveJsonModule": true,
+        "esModuleInterop": true
     },
     "include": [
         "src/**/*"
