@@ -63,6 +63,7 @@ Acesse a documentação interativa (Swagger) em: http://localhost:2342/docs
 O sistema possui alta taxa de imunidade (98.3% de cobertura de testes);
 
 Para validar a saúde: 
+
 | npm run test:cov
 
 Para monitoração em tempo real: Acesse o endpoint /api/monitoring/stats para verificar a integridade dos módulos e do banco de dados.
