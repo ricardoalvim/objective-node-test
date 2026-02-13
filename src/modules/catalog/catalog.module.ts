@@ -1,4 +1,4 @@
-import { Router, Request, Response } from 'express'
+import { Router, Request, Response, NextFunction } from 'express'
 import { Db } from 'mongodb'
 import { makeCatalogController } from './catalog.factory'
 import { seedCatalog } from './catalog.seed'
@@ -11,29 +11,45 @@ export class CatalogModule {
 
     const controller = makeCatalogController(db)
 
+    const asyncHandler = (fn: Function) => (req: Request, res: Response, next: NextFunction) => {
+      Promise.resolve(fn(req, res, next)).catch(next)
+    }
+
     // GET /all
-    router.get('/all', async (_req: Request, res: Response) => {
-      const result = await controller.getAll()
-      res.json(result)
-    })
+    router.get(
+      '/all',
+      asyncHandler(async (_req: Request, res: Response) => {
+        const result = await controller.getAll()
+        res.json(result)
+      }),
+    )
 
     // POST /movies
-    router.post('/movies', async (req: Request, res: Response) => {
-      const result = await controller.create(req.body)
-      res.status(201).json(result)
-    })
+    router.post(
+      '/movies',
+      asyncHandler(async (req: Request, res: Response) => {
+        const result = await controller.create(req.body)
+        res.status(201).json(result)
+      }),
+    )
 
     // PUT /movies/:id
-    router.put('/movies/:id', async (req: Request, res: Response) => {
-      await controller.update(req.params.id, req.body)
-      res.status(200).send()
-    })
+    router.put(
+      '/movies/:id',
+      asyncHandler(async (req: Request, res: Response) => {
+        await controller.update(req.params.id, req.body)
+        res.status(200).send()
+      }),
+    )
 
     // DELETE /movies/:id
-    router.delete('/movies/:id', async (req: Request, res: Response) => {
-      await controller.delete(req.params.id)
-      res.status(204).send()
-    })
+    router.delete(
+      '/movies/:id',
+      asyncHandler(async (req: Request, res: Response) => {
+        await controller.delete(req.params.id)
+        res.status(204).send()
+      }),
+    )
 
     return router
   }

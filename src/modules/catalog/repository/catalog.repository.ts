@@ -1,4 +1,4 @@
-import { Db } from 'mongodb'
+import { Db, Filter, UpdateFilter } from 'mongodb'
 import { BaseRepository } from '@shared/infra/repository.base'
 import { IMovieRepository } from '../domain/interfaces/catalog.repository.interface'
 import { Movie } from '../domain/entity/movie.entity'
@@ -13,19 +13,24 @@ export class MovieRepository extends BaseRepository<Movie> implements IMovieRepo
   }
 
   async findById(id: string): Promise<Movie | null> {
-    const result = await this.collection.findOne({ id } as any)
+    const query: Filter<Movie> = { id }
+    const result = await this.collection.findOne(query)
     return result as Movie | null
   }
 
   async update(id: string, movie: Partial<Movie>): Promise<void> {
-    await this.collection.updateOne({ id } as any, { $set: movie })
+    const query: Filter<Movie> = { id }
+    const update: UpdateFilter<Movie> = { $set: movie }
+    await this.collection.updateOne(query, update)
   }
 
   async findAvailable(): Promise<Movie[]> {
-    return this.collection.find({ available: true }).toArray()
+    const query: Filter<Movie> = { available: true }
+    return this.collection.find(query).toArray()
   }
 
   async delete(id: string): Promise<void> {
-    await this.collection.deleteOne({ id: id } as any)
+    const query: Filter<Movie> = { id }
+    await this.collection.deleteOne(query)
   }
 }

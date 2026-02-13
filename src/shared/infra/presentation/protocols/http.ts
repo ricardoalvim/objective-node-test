@@ -1,5 +1,5 @@
-export interface HttpResponse {
+export interface HttpResponse<T = unknown> {
   statusCode: number
-  data?: any
+  data?: T
   error?: string
 }

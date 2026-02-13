@@ -9,3 +9,12 @@ export interface UpdateMovieRequest {
   synopsis?: string
   rating?: string
 }
+
+export interface MovieResponseDTO {
+  id: string
+  name: string
+  synopsis: string
+  rating: string
+  available?: boolean
+}
+
