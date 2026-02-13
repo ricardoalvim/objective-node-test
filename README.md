@@ -1,8 +1,8 @@
-# 💊 objective-node-test: Bula do Sistema
+# 💊 objective-node-test: Bula da aplicação do desafio técnico
 
 **Descrição:** API RESTful para locação de filmes desenvolvida em Node.js 20+ e TypeScript.
 
-**Indicação:** Esta solução foi formulada sob a arquitetura de **Monólito Modular**, utilizando princípios de **Clean Architecture** e **DDD**. A escolha desta organização visa garantir a "saúde" do código a longo prazo, oferecendo baixo acoplamento, alta testabilidade (98.3% de cobertura) e escalabilidade imediata. 
+**Indicação:** Esta solução foi formulada sob a arquitetura de Monólito Modular, utilizando princípios de Clean Architecture e DDD. A escolha desta organização visa garantir a "saúde" do código a longo prazo, oferecendo baixo acoplamento, alta testabilidade (98.3% de cobertura) e escalabilidade imediata. 
 
 **Composição:** Solução totalmente containerizada com Docker, utilizando MongoDB para persistência de dados e TSOA para uma documentação (Swagger) autogerada e tipada.
 
