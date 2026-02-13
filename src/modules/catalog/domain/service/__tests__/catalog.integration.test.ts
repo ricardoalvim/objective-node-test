@@ -42,22 +42,24 @@ describe('Catalog Integration (E2E)', () => {
     const getRes = await request(app).get('/api/all')
     expect(getRes.status).toBe(200)
     expect(Array.isArray(getRes.body)).toBe(true)
-    expect(getRes.body.some((m: any) => m.name === 'Inception')).toBe(true)
+    expect(getRes.body.some((m: { name: string }) => m.name === 'Inception')).toBe(true)
   })
 
   it('deve atualizar um filme via API', async () => {
-    const movie = await request(app).post('/api/movies').send({ name: 'Original', synopsis: '...', rating: '5' })
+    const movie = await request(app)
+      .post('/api/movies')
+      .send({ name: 'Original', synopsis: '...', rating: '5' })
     const movieId = movie.body.id
 
-    const updateRes = await request(app)
-      .put(`/api/movies/${movieId}`)
-      .send({ name: 'Updated' })
+    const updateRes = await request(app).put(`/api/movies/${movieId}`).send({ name: 'Updated' })
 
     expect(updateRes.status).toBe(200)
   })
 
   it('deve deletar um filme via API', async () => {
-    const movie = await request(app).post('/api/movies').send({ name: 'To Delete', synopsis: '...', rating: '1' })
+    const movie = await request(app)
+      .post('/api/movies')
+      .send({ name: 'To Delete', synopsis: '...', rating: '1' })
     const deleteRes = await request(app).delete(`/api/movies/${movie.body.id}`)
 
     expect(deleteRes.status).toBe(204)

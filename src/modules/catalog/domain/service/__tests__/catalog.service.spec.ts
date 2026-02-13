@@ -1,9 +1,13 @@
 import { CatalogService } from '../catalog.service'
 import { IMovieRepository } from '../../interfaces/catalog.repository.interface'
+import { IBookingRepository } from '@modules/booking/domain/interfaces/booking.repository.interface'
+import { Movie } from '../../entity/movie.entity'
+import { Booking } from '@modules/booking/domain/entity/booking.entity'
 
 describe('CatalogService', () => {
   let sut: CatalogService
   let repositoryMock: jest.Mocked<IMovieRepository>
+  let bookingRepositoryMock: jest.Mocked<IBookingRepository>
 
   beforeEach(() => {
     repositoryMock = {
@@ -14,14 +18,23 @@ describe('CatalogService', () => {
       delete: jest.fn(),
     } as any
 
-    sut = new CatalogService(repositoryMock)
+    bookingRepositoryMock = {
+      save: jest.fn(),
+      findById: jest.fn(),
+      findByScheduleId: jest.fn(),
+      findExpiredWaiting: jest.fn(),
+      delete: jest.fn(),
+    } as any
+
+    sut = new CatalogService(repositoryMock, bookingRepositoryMock)
   })
 
   it('deve listar apenas filmes disponíveis (Regra do Desafio)', async () => {
-    const fakeMovies = [
-      { id: '1', name: 'Matrix', synopsis: 'Any', rating: '5', available: true },
-    ] as any
+    const fakeMovies: Movie[] = [
+      { id: '1', name: 'Matrix', synopsis: 'Science fiction classic', rating: '5', available: true },
+    ]
 
+    bookingRepositoryMock.findExpiredWaiting.mockResolvedValue([])
     repositoryMock.findAvailable.mockResolvedValue(fakeMovies)
 
     const result = await sut.listAvailable()
@@ -33,18 +46,19 @@ describe('CatalogService', () => {
 
   it('deve retornar null se o filme não for encontrado no detalhe', async () => {
     repositoryMock.findById.mockResolvedValue(null)
-    const result = await sut.getMovieDetails('any_id')
+    const result = await sut.getMovieDetails('test-id')
     expect(result).toBeNull()
   })
 
   it('deve chamar o update do repositório', async () => {
-    await sut.update('any-id', { name: 'Updated Name' })
-    expect(repositoryMock.update).toHaveBeenCalledWith('any-id', { name: 'Updated Name' })
+    const updatePayload = { name: 'Updated Name' }
+    await sut.update('test-id', updatePayload)
+    expect(repositoryMock.update).toHaveBeenCalledWith('test-id', updatePayload)
   })
 
   it('deve chamar o delete do repositório', async () => {
-    await sut.delete('any-id')
-    expect(repositoryMock.delete).toHaveBeenCalledWith('any-id')
+    await sut.delete('test-id')
+    expect(repositoryMock.delete).toHaveBeenCalledWith('test-id')
   })
 
   it('deve retornar undefined ao tentar atualizar filme inexistente', async () => {
