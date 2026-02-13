@@ -22,11 +22,12 @@ services:
       - "27017:27017"
     volumes:
       - mongo_data:/data/db
+    command: ["mongod", "--quiet", "--setParameter", "logComponentVerbosity={default:0,network:0,storage:0,accessControl:0}"]
     healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
+      test: ["CMD-SHELL", "mongosh --quiet --eval 'db.adminCommand(\"ping\")' > /dev/null 2>&1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
 volumes:
   mongo_data:

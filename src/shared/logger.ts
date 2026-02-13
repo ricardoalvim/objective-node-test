@@ -1,9 +1,4 @@
-export enum LogLevel {
-    INFO = 'INFO',
-    WARN = 'WARN',
-    ERROR = 'ERROR',
-    DEBUG = 'DEBUG'
-}
+import { LogLevel } from "./enum/log-level.logger"
 
 export class Logger {
     private static format(level: LogLevel, message: string): string {
