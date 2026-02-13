@@ -1,30 +1,31 @@
+import 'module-alias/register'
 import 'dotenv/config'
 import express from 'express'
+import swaggerUi from 'swagger-ui-express'
 import { MongoClient } from 'mongodb'
-import { Logger } from '@shared/logger'
+
+import { CatalogModule } from './modules/catalog/catalog.module'
+import * as swaggerDocument from './shared/infra/presentation/swagger.json'
+
+const app = express()
+app.use(express.json())
+
+const port = process.env.PORT || 2342
+
+const client = new MongoClient(process.env.MONGO_URL || 'mongodb://localhost:27017')
 
 async function bootstrap() {
-    const app = express()
-    app.use(express.json())
+  await client.connect()
+  const db = client.db('objective_rental')
 
-    const mongoUrl = process.env.MONGO_URL || 'mongodb://localhost:27017'
-    const mongoClient = new MongoClient(mongoUrl)
+  app.use('/api', CatalogModule.setup(db))
 
-    try {
-        Logger.info('Attempting to connect to MongoDB...')
-        await mongoClient.connect()
-        Logger.info('📦 Database connection established successfully')
+  app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
 
-        const db = mongoClient.db()
-
-        const PORT = process.env.PORT || 3000
-        app.listen(PORT, () => {
-            Logger.info(`🚀 Server is barking on http://localhost:${PORT}`)
-        })
-    } catch (error) {
-        Logger.error('❌ Failed to bootstrap the application', error)
-        process.exit(1)
-    }
+  app.listen(port, () => {
+    console.log(`Server running on port ${port}`)
+    console.log(`Docs available at http://localhost:${port}/docs`)
+  })
 }
 
-bootstrap()
+bootstrap().catch(console.error)

@@ -5,13 +5,14 @@ services:
     build: .
     container_name: objective_rental_api
     ports:
-      - "3000:3000"
+      - "2342:2342"
     environment:
-      - MONGO_URL=mongodb://mongodb:27017/rental_db
-      - PORT=3000
+      - PORT=${PORT}
+      - MONGO_URL=${MONGO_URL}
+      - DB_NAME=${DB_NAME}
     depends_on:
       mongodb:
-        condition: service_healthy
+        condition: service_started
     volumes:
       - ./src:/app/src
 
@@ -22,11 +23,8 @@ services:
       - "27017:27017"
     volumes:
       - mongo_data:/data/db
-    healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
+    command: >
+      mongod --quiet --setParameter logComponentVerbosity='{"network":{"verbosity":-1},"accessControl":{"verbosity":-1}}'
 
 volumes:
   mongo_data:
